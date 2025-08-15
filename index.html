@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Vòng quay Role</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div id="step1" class="step">
+    <h2>Chọn số người chơi</h2>
+    <select id="playerCount"></select>
+    <button id="startNames">Tiếp tục</button>
+  </div>
+
+  <div id="step2" class="step hidden">
+    <h2>Nhập tên người chơi</h2>
+    <form id="nameForm"></form>
+    <button id="submitNames">Tiếp tục</button>
+  </div>
+
+  <div id="step3" class="step hidden">
+    <h2>Nhập role</h2>
+    <form id="roleForm"></form>
+    <button id="startGame">Bắt đầu</button>
+  </div>
+
+  <div id="step4" class="step hidden">
+    <h2 id="currentPlayer"></h2>
+    <div id="wheelContainer">
+      <div id="wheel"></div>
+      <div id="pointer"></div>
+    </div>
+    <button id="spin">Quay</button>
+    <div id="result"></div>
+    <button id="next" class="hidden">OK</button>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
