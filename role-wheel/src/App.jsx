@@ -16,9 +16,9 @@ export default function App() {
   const [result, setResult] = useState("");
   const [roleInputs, setRoleInputs] = useState([]);
 
-  // Available roles with icons placeholder
+  // Available roles with pixel-style icons
   const availableRoles = [
-    { name: "Bảo Vệ", icon: "🛡️" },
+    { name: "Báo Vệ", icon: "🛡️" },
     { name: "Thợ Săn", icon: "🏹" },
     { name: "Tiên Tri", icon: "🔮" },
     { name: "Phù Thủy", icon: "🧙‍♀️" },
@@ -27,25 +27,34 @@ export default function App() {
     { name: "Dân Làng", icon: "👨‍🌾" },
     { name: "Sói", icon: "🐺" },
     { name: "Sói Con", icon: "🐻‍❄️" },
-    { name: "Sói đầu đàng", icon: "🐕‍🦺" },
-    { name: "Bán Sói", icon: "🌗" },
+    { name: "Sói đầu đàn", icon: "🐩" },
+    { name: "Bán Sói", icon: "🎭" },
     { name: "Kẻ phản bội", icon: "🔪" },
     { name: "Thằng Khờ", icon: "🤡" }
   ];
 
-  // Derived conic-gradient for wheel (simple color wheel without role labels)
+  // Pixel clouds animation
+  const [cloudOffset, setCloudOffset] = useState(0);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCloudOffset(prev => (prev + 1) % 200);
+    }, 100);
+    return () => clearInterval(interval);
+  }, []);
+
+  // Derived conic-gradient for wheel
   const wheelBackground = useMemo(() => {
     const n = Math.max(remainingRoles.length, 1);
     const step = 360 / n;
     const slices = [];
+    const colors = ['#ff6b9d', '#4ecdc4', '#45b7d1', '#96ceb4', '#ffeaa7', '#dda0dd', '#98d8c8', '#f7dc6f'];
     for (let i = 0; i < n; i++) {
-      const hue = (i * 360 / n) % 360;
-      slices.push(`hsl(${hue}, 70%, 60%) ${i * step}deg ${(i + 1) * step}deg`);
+      const color = colors[i % colors.length];
+      slices.push(`${color} ${i * step}deg ${(i + 1) * step}deg`);
     }
     return `conic-gradient(${slices.join(",")})`;
   }, [remainingRoles]);
-
-  // Preset roles for quick setup - removed as requested
 
   const goStep1 = () => {
     setStep(1);
@@ -132,7 +141,6 @@ export default function App() {
     setResult("");
     setSpinning(true);
 
-    // More varied spin duration
     const spinDuration = 3000 + Math.random() * 2000;
     const rotations = 5 + Math.random() * 3;
     const finalAngle = Math.random() * 360;
@@ -163,6 +171,7 @@ export default function App() {
       setStep(5);
     }
   };
+
   const autoSpin = () => {
     if (spinning) return;
 
@@ -190,8 +199,6 @@ export default function App() {
     setStep(5);
   };
 
-
-
   const toggleMark = (index) => {
     setMarked(prev => {
       const cp = new Set(prev);
@@ -203,19 +210,41 @@ export default function App() {
 
   return (
     <div style={styles.container}>
+      {/* Pixel Clouds */}
+      <div style={{...styles.cloud, ...styles.cloud1, left: `${-100 + cloudOffset}px`}}>☁️</div>
+      <div style={{...styles.cloud, ...styles.cloud2, left: `${100 + cloudOffset * 0.8}px`}}>☁️</div>
+      <div style={{...styles.cloud, ...styles.cloud3, right: `${-50 + cloudOffset * 0.6}px`}}>☁️</div>
+      
+      {/* Pixel Cacti */}
+      <div style={styles.cactus1}>🌵</div>
+      <div style={styles.cactus2}>🌵</div>
+      
+      {/* Trophy for title */}
+      {step === 1 && <div style={styles.trophy}>⚔️</div>}
+
       {step === 1 && (
         <section style={styles.step}>
-          <h2 style={styles.heading}>🎮 Chọn số người chơi</h2>
-          <select
-            style={styles.select}
-            value={numPlayers}
-            onChange={e => setNumPlayers(parseInt(e.target.value, 10))}
-          >
-            {playerOptions.map(n => <option key={n} value={n}>{n} người</option>)}
-          </select>
+          <h1 style={styles.gameTitle}>WOLVESVILLE</h1>
+          <div style={styles.subtitle}>⭐Powered by Chi Pham⭐</div>
+          
+          <div style={styles.pixelBox}>
+            <h3 style={styles.heading}>💎 Chọn số người chơi 💎</h3>
+            <select
+              style={styles.select}
+              value={numPlayers}
+              onChange={e => setNumPlayers(parseInt(e.target.value, 10))}
+            >
+              {playerOptions.map(n => <option key={n} value={n}>{n} người</option>)}
+            </select>
+          </div>
+          
+          <div style={styles.healthBar}>
+            <div style={styles.healthFill}></div>
+          </div>
+          
           <div style={styles.navigation_step1}>
-            <button style={styles.button} onClick={toStep2}>
-              Tiếp tục →
+            <button style={styles.pixelButton} onClick={toStep2}>
+              ▶ TIẾP TỤC
             </button>
           </div>
         </section>
@@ -223,28 +252,31 @@ export default function App() {
 
       {step === 2 && (
         <section style={styles.step}>
-          <h2 style={styles.heading}>👥 Nhập tên người chơi</h2>
-          <div style={styles.inputContainer}>
-            {players.map((name, i) => (
-              <input
-                key={i}
-                style={styles.input}
-                placeholder={`Người chơi ${i + 1}`}
-                value={name}
-                onChange={e => {
-                  const arr = [...players];
-                  arr[i] = e.target.value;
-                  setPlayers(arr);
-                }}
-              />
-            ))}
+          <div style={styles.pixelBox}>
+            <h2 style={styles.heading}>📋 Nhập tên người chơi</h2>
+            <div style={styles.inputContainer}>
+              {players.map((name, i) => (
+                <input
+                  key={i}
+                  style={styles.pixelInput}
+                  placeholder={`Người chơi ${i + 1}`}
+                  value={name}
+                  onChange={e => {
+                    const arr = [...players];
+                    arr[i] = e.target.value;
+                    setPlayers(arr);
+                  }}
+                />
+              ))}
+            </div>
           </div>
+          
           <div style={styles.navigation}>
-            <button style={styles.backButton} onClick={() => setStep(1)}>
-              ← Quay lại
+            <button style={styles.pixelBackButton} onClick={() => setStep(1)}>
+              ◀ QUAY LẠI
             </button>
-            <button style={styles.button} onClick={submitNames}>
-              Tiếp tục →
+            <button style={styles.pixelButton} onClick={submitNames}>
+              TIẾP TỤC ▶
             </button>
           </div>
         </section>
@@ -252,44 +284,46 @@ export default function App() {
 
       {step === 3 && (
         <section style={styles.step}>
-          <h2 style={styles.heading}>🎭 Thiết lập vai trò</h2>
+          <div style={styles.pixelBox}>
+            <h2 style={styles.heading}>🪄 Thiết lập vai trò</h2>
 
-          <div style={styles.inputContainer}>
-            {players.map((p, i) => (
-              <div key={i} style={styles.roleSelectContainer}>
-                <label style={styles.roleLabel}>Người chơi {i + 1}:</label>
-                <select
-                  style={styles.roleSelect}
-                  value={roleInputs[i] || ""}
-                  onChange={e => {
-                    const arr = [...roleInputs];
-                    arr[i] = e.target.value;
-                    setRoleInputs(arr);
-                  }}
-                >
-                  <option value="">-- Chọn vai trò --</option>
-                  {availableRoles.map((role, idx) => (
-                    <option key={idx} value={role.name}>
-                      {role.icon} {role.name}
-                    </option>
-                  ))}
-                </select>
-              </div>
-            ))}
-          </div>
+            <div style={styles.inputContainer}>
+              {players.map((p, i) => (
+                <div key={i} style={styles.roleSelectContainer}>
+                  <label style={styles.roleLabel}>Player {i + 1}:</label>
+                  <select
+                    style={styles.pixelSelect}
+                    value={roleInputs[i] || ""}
+                    onChange={e => {
+                      const arr = [...roleInputs];
+                      arr[i] = e.target.value;
+                      setRoleInputs(arr);
+                    }}
+                  >
+                    <option value="">-- Chọn vai trò --</option>
+                    {availableRoles.map((role, idx) => (
+                      <option key={idx} value={role.name}>
+                        {role.icon} {role.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              ))}
+            </div>
 
-          <div style={styles.actionButtons}>
-            <button style={styles.autoAssignButton} onClick={autoAssignRoles}>
-              ⚡ Gán vai trò nhanh
-            </button>
+            <div style={styles.actionButtons}>
+              <button style={styles.pixelSpecialButton} onClick={autoAssignRoles}>
+                ⚡ GIAO VAI TRÒ NHANH
+              </button>
+            </div>
           </div>
 
           <div style={styles.navigation}>
-            <button style={styles.backButton} onClick={() => setStep(2)}>
-              ← Quay lại
+            <button style={styles.pixelBackButton} onClick={() => setStep(2)}>
+              ◀ QUAY LẠI
             </button>
-            <button style={styles.button} onClick={startRoles}>
-              Bắt đầu 🎯
+            <button style={styles.pixelButton} onClick={startRoles}>
+              BẮT ĐẦU 🎯
             </button>
           </div>
         </section>
@@ -297,64 +331,68 @@ export default function App() {
 
       {step === 4 && (
         <section style={styles.step}>
-          <h2 style={styles.heading}>
-            🎲 Đang quay cho: <span style={styles.currentPlayer}>{players[currentPlayer]}</span>
-          </h2>
+          <div style={styles.pixelBox}>
+            <h2 style={styles.heading}>
+              🎲 Đang quay cho: <span style={styles.currentPlayer}>{players[currentPlayer]}</span>
+            </h2>
 
-          <div style={styles.gameInfo}>
-            <p>Người chơi: {currentPlayer + 1}/{players.length}</p>
-            <p>Vai trò còn lại: {remainingRoles.length}</p>
+            <div style={styles.gameInfo}>
+              <div style={styles.statBox}>
+                <span>Người chơi: {currentPlayer + 1}/{players.length}</span>
+                <span>Role còn lại: {remainingRoles.length}</span>
+              </div>
+            </div>
+
+            <div style={styles.wheelContainer}>
+              <div
+                style={{
+                  ...styles.pixelWheel,
+                  background: wheelBackground,
+                  transform: `rotate(${spinDeg}deg)`,
+                  transition: spinning ? "transform 4s cubic-bezier(0.23, 1, 0.32, 1)" : "none",
+                }}
+              />
+              <div style={styles.pixelPointer}>▼</div>
+            </div>
+
+            {!spinning && !result && (
+              <div style={styles.actionButtons}>
+                <button
+                  style={styles.pixelButton}
+                  onClick={spin}
+                  disabled={remainingRoles.length === 0}
+                >
+                  🎰 QUAY
+                </button>
+                <button
+                  style={styles.pixelSpecialButton}
+                  onClick={autoSpin}
+                  disabled={remainingRoles.length === 0}
+                >
+                  ⚡ TỰ ĐỘNG
+                </button>
+              </div>
+            )}
+
+            {spinning && (
+              <div style={styles.spinningText}>
+                ✨ ĐANG QUAY... ✨
+              </div>
+            )}
+
+            {result && (
+              <div style={styles.pixelResultBox}>
+                <div style={styles.resultText}>{result}</div>
+                <button style={styles.pixelButton} onClick={nextAfterSpin}>
+                  {currentPlayer + 1 < players.length ? "TIẾP THEO ▶" : "HOÀN THÀNH ✅"}
+                </button>
+              </div>
+            )}
           </div>
-
-          <div style={styles.wheelContainer}>
-            <div
-              style={{
-                ...styles.wheel,
-                background: wheelBackground,
-                transform: `rotate(${spinDeg}deg)`,
-                transition: spinning ? "transform 4s cubic-bezier(0.23, 1, 0.32, 1)" : "none",
-              }}
-            />
-            <div style={styles.pointer}></div>
-          </div>
-
-          {!spinning && !result && (
-            <div style={styles.actionButtons}>
-              <button
-                style={styles.button}
-                onClick={spin}
-                disabled={remainingRoles.length === 0}
-              >
-                🎰 Quay
-              </button>
-              <button
-                style={styles.autoSpinButton}
-                onClick={autoSpin}
-                disabled={remainingRoles.length === 0}
-              >
-                ⚡ Quay tự động
-              </button>
-            </div>
-          )}
-
-          {spinning && (
-            <div style={styles.spinningText}>
-              🌟 Đang quay... 🌟
-            </div>
-          )}
-
-          {result && (
-            <div style={styles.result}>
-              <div style={styles.resultText}>{result}</div>
-              <button style={styles.button} onClick={nextAfterSpin}>
-                {currentPlayer + 1 < players.length ? "Tiếp theo →" : "Hoàn thành ✅"}
-              </button>
-            </div>
-          )}
 
           <div style={styles.navigation}>
-            <button style={styles.backButton} onClick={backTo3}>
-              ← Quay lại
+            <button style={styles.pixelBackButton} onClick={backTo3}>
+              ◀ QUAY LẠI
             </button>
           </div>
         </section>
@@ -362,32 +400,37 @@ export default function App() {
 
       {step === 5 && (
         <section style={styles.step}>
-          <h2 style={styles.heading}>🏆 Kết quả phân vai</h2>
-          <div style={styles.playerList}>
-            {assigned.map((a, idx) => {
-              const roleIcon = availableRoles.find(r => r.name === a.role)?.icon || "";
-              return (
-                <div
-                  key={idx}
-                  style={{
-                    ...styles.playerItem,
-                    ...(marked.has(idx) ? styles.markedItem : {})
-                  }}
-                  onClick={() => toggleMark(idx)}
-                >
-                  <span style={styles.playerName}>{a.player}</span>
-                  <span style={styles.playerRole}>{roleIcon} {a.role}</span>
-                </div>
-              );
-            })}
+          <div style={styles.pixelBox}>
+            <h2 style={styles.heading}>🏆 Kết quả phân vai</h2>
+            <div style={styles.playerList}>
+              {assigned.map((a, idx) => {
+                const roleIcon = availableRoles.find(r => r.name === a.role)?.icon || "";
+                return (
+                  <div
+                    key={idx}
+                    style={{
+                      ...styles.pixelPlayerItem,
+                      ...(marked.has(idx) ? styles.markedPixelItem : {})
+                    }}
+                    onClick={() => toggleMark(idx)}
+                  >
+                    <span style={styles.playerName}>{a.player}</span>
+                    <span style={styles.playerRole}>{roleIcon} {a.role}</span>
+                  </div>
+                );
+              })}
+            </div>
+            <div style={styles.finalStats}>
+              <div style={styles.statBox}>
+                <span>✅ Tổng số người chơi: {assigned.length}</span>
+                <span>🔴 Đã loại: {marked.size} người</span>
+              </div>
+            </div>
           </div>
-          <div style={styles.finalStats}>
-            <p>✅ Tổng số người chơi: {assigned.length}</p>
-            <p>🔴 Đã loại: {marked.size} người</p>
-          </div>
-          <div style={styles.navigation}>
-            <button style={styles.restartButton} onClick={restartGame}>
-              🔄 Chơi lại
+          
+          <div style={styles.navigation_step1_5}>
+            <button style={styles.pixelRestartButton} onClick={restartGame}>
+              🔄 CHƠI LẠI
             </button>
           </div>
         </section>
@@ -398,274 +441,374 @@ export default function App() {
 
 const styles = {
   container: {
-    fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif",
+    fontFamily: "'Courier New', monospace",
     textAlign: "center",
     margin: 0,
     padding: "20px",
-    background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+    background: "linear-gradient(180deg, #2c1810 0%, #8B4513 50%, #DAA520 100%)",
     minHeight: "100vh",
     color: "white",
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
+    position: "relative",
+    overflow: "hidden",
+    imageRendering: "pixelated",
+  },
+
+  // Animated elements
+  cloud: {
+    position: "absolute",
+    fontSize: "2em",
+    zIndex: 1,
+    filter: "drop-shadow(2px 2px 0px rgba(0,0,0,0.3))",
+    animation: "float 3s ease-in-out infinite",
+  },
+
+  cloud1: {
+    top: "10%",
+    animationDelay: "0s",
+  },
+
+  cloud2: {
+    top: "20%",
+    animationDelay: "1s",
+  },
+
+  cloud3: {
+    top: "15%",
+    animationDelay: "2s",
+  },
+
+  cactus1: {
+    position: "absolute",
+    bottom: "20px",
+    left: "50px",
+    fontSize: "3em",
+    zIndex: 1,
+    filter: "drop-shadow(3px 3px 0px rgba(0,0,0,0.5))",
+  },
+
+  cactus2: {
+    position: "absolute",
+    bottom: "20px",
+    right: "50px",
+    fontSize: "2.5em",
+    zIndex: 1,
+    filter: "drop-shadow(3px 3px 0px rgba(0,0,0,0.5))",
+  },
+
+  trophy: {
+    position: "absolute",
+    top: "20px",
+    left: "50%",
+    transform: "translateX(-50%)",
+    fontSize: "4em",
+    zIndex: 10,
+    filter: "drop-shadow(3px 3px 0px rgba(0,0,0,0.5))",
+    animation: "bounce 2s ease-in-out infinite",
+  },
+
+  gameTitle: {
+    fontSize: "3em",
+    fontWeight: "bold",
+    color: "#FFD700",
+    textShadow: "4px 4px 0px #8B4513, 8px 8px 0px #654321",
+    marginBottom: "10px",
+    letterSpacing: "4px",
+  },
+
+  subtitle: {
+    fontSize: "1.2em",
+    color: "#98FB98",
+    textShadow: "2px 2px 0px #006400",
+    marginBottom: "30px",
+    letterSpacing: "2px",
   },
 
   step: {
-    background: "rgba(255, 255, 255, 0.15)",
-    backdropFilter: "blur(20px)",
-    borderRadius: "25px",
-    padding: "30px",
+    background: "rgba(0, 0, 0, 0.8)",
+    border: "4px solid #FFD700",
+    borderRadius: "0px",
+    padding: "20px",
     width: "100%",
-    maxWidth: "450px",
-    boxShadow: "0 8px 32px rgba(0, 0, 0, 0.2)",
-    border: "1px solid rgba(255, 255, 255, 0.2)",
+    marginBottom: "100px",
+    maxWidth: "500px",
+    boxShadow: "8px 8px 0px rgba(0, 0, 0, 0.5)",
+    position: "relative",
+    zIndex: 5,
+    imageRendering: "pixelated",
+  },
+
+  pixelBox: {
+    background: "rgba(139, 69, 19, 0.9)",
+    border: "3px solid #FFD700",
+    padding: "20px",
+    margin: "10px 0",
+    position: "relative",
   },
 
   heading: {
-    marginBottom: "25px",
-    fontSize: "1.8em",
-    textShadow: "2px 2px 4px rgba(0, 0, 0, 0.3)",
-    fontWeight: "600",
-    lineHeight: "1.3",
-  },
-
-  subHeading: {
-    fontSize: "1.1em",
-    marginBottom: "15px",
-    color: "rgba(255, 255, 255, 0.9)",
+    marginBottom: "20px",
+    fontSize: "1.2em",
+    color: "#FFD700",
+    textShadow: "2px 2px 0px #8B4513",
+    fontWeight: "bold",
   },
 
   select: {
     display: "block",
     margin: "20px auto",
-    padding: "18px 24px",
-    border: "none",
-    borderRadius: "15px",
-    fontSize: "18px",
+    padding: "12px 16px",
+    border: "3px solid #FFD700",
+    borderRadius: "0px",
+    fontSize: "16px",
     width: "100%",
-    maxWidth: "300px",
-    background: "rgba(255, 255, 255, 0.95)",
-    color: "#333",
+    maxWidth: "250px",
+    background: "#2F1B14",
+    color: "#FFD700",
     cursor: "pointer",
-    boxShadow: "0 4px 15px rgba(0, 0, 0, 0.1)",
+    fontFamily: "'Courier New', monospace",
+    fontWeight: "bold",
+  },
+
+  pixelInput: {
+    display: "block",
+    margin: "10px auto",
+    padding: "12px 16px",
+    border: "3px solid #FFD700",
+    borderRadius: "0px",
+    fontSize: "16px",
+    width: "calc(100% - 40px)",
+    maxWidth: "300px",
+    background: "#2F1B14",
+    color: "#FFD700",
+    fontFamily: "'Courier New', monospace",
+    fontWeight: "bold",
+    boxSizing: "border-box",
+  },
+
+  pixelSelect: {
+    width: "100%",
+    padding: "10px 12px",
+    border: "3px solid #FFD700",
+    borderRadius: "0px",
+    fontSize: "14px",
+    background: "#2F1B14",
+    color: "#FFD700",
+    cursor: "pointer",
+    fontFamily: "'Courier New', monospace",
+    fontWeight: "bold",
+  },
+
+  pixelButton: {
+    background: "linear-gradient(180deg, #FF6B6B 0%, #E55656 100%)",
+    color: "white",
+    border: "3px solid #FFD700",
+    padding: "12px 20px",
+    borderRadius: "0px",
+    cursor: "pointer",
+    fontSize: "14px",
+    fontWeight: "bold",
+    fontFamily: "'Courier New', monospace",
+    textShadow: "1px 1px 0px rgba(0,0,0,0.5)",
+    boxShadow: "4px 4px 0px rgba(0, 0, 0, 0.3)",
+    transition: "all 0.1s ease",
+    letterSpacing: "1px",
+  },
+
+  pixelBackButton: {
+    background: "linear-gradient(180deg, #4ECDC4 0%, #44A08D 100%)",
+    color: "white",
+    border: "3px solid #FFD700",
+    padding: "12px 20px",
+    borderRadius: "0px",
+    cursor: "pointer",
+    fontSize: "14px",
+    fontWeight: "bold",
+    fontFamily: "'Courier New', monospace",
+    textShadow: "1px 1px 0px rgba(0,0,0,0.5)",
+    boxShadow: "4px 4px 0px rgba(0, 0, 0, 0.3)",
+    transition: "all 0.1s ease",
+    letterSpacing: "1px",
+  },
+
+  pixelRestartButton: {
+    background: "linear-gradient(180deg, #F7DC6F 0%, #F4D03F 100%)",
+    color: "#8B4513",
+    border: "3px solid #FFD700",
+    padding: "12px 20px",
+    borderRadius: "0px",
+    cursor: "pointer",
+    fontSize: "14px",
+    fontWeight: "bold",
+    fontFamily: "'Courier New', monospace",
+    textShadow: "1px 1px 0px rgba(255,255,255,0.5)",
+    boxShadow: "4px 4px 0px rgba(0, 0, 0, 0.3)",
+    transition: "all 0.1s ease",
+    letterSpacing: "1px",
+  },
+
+  pixelSpecialButton: {
+    background: "linear-gradient(180deg, #A29BFE 0%, #6C5CE7 100%)",
+    color: "white",
+    border: "3px solid #FFD700",
+    padding: "10px 16px",
+    borderRadius: "0px",
+    cursor: "pointer",
+    fontSize: "12px",
+    fontWeight: "bold",
+    fontFamily: "'Courier New', monospace",
+    textShadow: "1px 1px 0px rgba(0,0,0,0.5)",
+    boxShadow: "4px 4px 0px rgba(0, 0, 0, 0.3)",
+    margin: "5px",
+    letterSpacing: "1px",
   },
 
   inputContainer: {
     marginBottom: "20px",
   },
 
-  input: {
-    display: "block",
-    margin: "15px auto",
-    padding: "18px 24px",
-    border: "none",
-    borderRadius: "15px",
-    fontSize: "16px",
-    width: "100%",
-    maxWidth: "300px",
-    background: "rgba(255, 255, 255, 0.95)",
-    color: "#333",
-    boxShadow: "0 4px 15px rgba(0, 0, 0, 0.1)",
-  },
-
   roleSelectContainer: {
-    margin: "15px 0",
+    margin: "10px 0",
     textAlign: "left",
   },
 
   roleLabel: {
     display: "block",
-    marginBottom: "8px",
-    fontSize: "16px",
-    fontWeight: "600",
-    color: "rgba(255, 255, 255, 0.9)",
-  },
-
-  roleSelect: {
-    width: "100%",
-    padding: "12px 16px",
-    border: "none",
-    borderRadius: "10px",
-    fontSize: "16px",
-    background: "rgba(255, 255, 255, 0.95)",
-    color: "#333",
-    cursor: "pointer",
-    boxShadow: "0 2px 8px rgba(0, 0, 0, 0.1)",
-  },
-
-  button: {
-    background: "linear-gradient(45deg, #ff6b6b, #ee5a24)",
-    color: "white",
-    border: "none",
-    padding: "16px 28px",
-    borderRadius: "50px",
-    cursor: "pointer",
-    fontSize: "16px",
-    fontWeight: "600",
-    boxShadow: "0 4px 15px rgba(0, 0, 0, 0.2)",
-    minWidth: "120px",
-    transition: "all 0.3s ease",
-  },
-
-  backButton: {
-    background: "linear-gradient(45deg, #74b9ff, #0984e3)",
-    color: "white",
-    border: "none",
-    padding: "16px 28px",
-    borderRadius: "50px",
-    cursor: "pointer",
-    fontSize: "16px",
-    fontWeight: "600",
-    boxShadow: "0 4px 15px rgba(0, 0, 0, 0.2)",
-    minWidth: "120px",
-    transition: "all 0.3s ease",
-  },
-
-  restartButton: {
-    background: "linear-gradient(45deg, #fdcb6e, #e17055)",
-    color: "white",
-    border: "none",
-    padding: "16px 28px",
-    borderRadius: "50px",
-    cursor: "pointer",
-    fontSize: "16px",
-    fontWeight: "600",
-    boxShadow: "0 4px 15px rgba(0, 0, 0, 0.2)",
-    minWidth: "120px",
-    transition: "all 0.3s ease",
-  },
-
-  autoAssignButton: {
-    background: "linear-gradient(45deg, #00cec9, #55a3ff)",
-    color: "white",
-    border: "none",
-    padding: "12px 20px",
-    borderRadius: "25px",
-    cursor: "pointer",
+    marginBottom: "5px",
     fontSize: "14px",
-    fontWeight: "600",
-    boxShadow: "0 4px 15px rgba(0, 0, 0, 0.2)",
-    margin: "10px",
+    fontWeight: "bold",
+    color: "#FFD700",
+    textShadow: "1px 1px 0px rgba(0,0,0,0.5)",
   },
 
   navigation: {
     display: "flex",
     justifyContent: "space-between",
     alignItems: "center",
-    marginTop: "30px",
-    gap: "15px",
+    marginTop: "20px",
+    gap: "10px",
     flexWrap: "wrap",
   },
-  navigation_step1: {
-    display: "center",
+
+  navigation_step1_5: {
+    display: "flex",
+    justifyContent: "center",
     alignItems: "center",
-    marginTop: "30px",
-    gap: "15px",
-    flexWrap: "wrap",
+    marginTop: "20px",
   },
 
   actionButtons: {
     display: "flex",
     justifyContent: "center",
     alignItems: "center",
-    margin: "20px 0",
+    margin: "15px 0",
     flexWrap: "wrap",
+    gap: "10px",
   },
 
   currentPlayer: {
-    color: "#ffeaa7",
-    textShadow: "2px 2px 4px rgba(0, 0, 0, 0.5)",
+    color: "#98FB98",
+    textShadow: "2px 2px 0px #006400",
+    animation: "glow 2s ease-in-out infinite alternate",
   },
 
   gameInfo: {
-    background: "rgba(255, 255, 255, 0.1)",
-    borderRadius: "15px",
-    padding: "15px",
-    marginBottom: "20px",
-    fontSize: "14px",
+    margin: "15px 0",
+  },
+
+  statBox: {
+    background: "rgba(47, 27, 20, 0.9)",
+    border: "2px solid #FFD700",
+    padding: "10px",
+    display: "flex",
+    justifyContent: "space-between",
+    fontSize: "12px",
+    fontWeight: "bold",
   },
 
   wheelContainer: {
     position: "relative",
-    margin: "30px auto",
-    width: "280px",
-    height: "280px",
+    margin: "20px auto",
+    width: "200px",
+    height: "200px",
   },
 
-  wheel: {
+  pixelWheel: {
     width: "100%",
     height: "100%",
-    borderRadius: "50%",
-    border: "4px solid #fff",
+    border: "4px solid #FFD700",
+    borderRadius: "50%", // Thêm borderRadius để làm tròn
     position: "relative",
-    boxShadow: "0 8px 32px rgba(0, 0, 0, 0.3)",
+    boxShadow: "0 0 20px rgba(255, 215, 0, 0.5)",
+    imageRendering: "pixelated",
   },
 
-  pointer: {
+  pixelPointer: {
     position: "absolute",
-    top: "-12px",
+    top: "-20px",
     left: "50%",
     transform: "translateX(-50%)",
-    width: "0",
-    height: "0",
-    borderLeft: "18px solid transparent",
-    borderRight: "18px solid transparent",
-    borderBottom: "30px solid #ff6b6b",
-    filter: "drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3))",
+    fontSize: "24px",
+    color: "#FF6B6B",
+    filter: "drop-shadow(2px 2px 0px rgba(0,0,0,0.5))",
     zIndex: 10,
   },
 
   spinningText: {
     fontSize: "1.2em",
     fontWeight: "bold",
-    margin: "20px 0",
+    margin: "15px 0",
+    color: "#98FB98",
+    textShadow: "2px 2px 0px #006400",
     animation: "pulse 1s infinite",
   },
 
-  result: {
-    marginTop: "25px",
+  pixelResultBox: {
+    background: "rgba(47, 27, 20, 0.9)",
+    border: "3px solid #FFD700",
+    padding: "15px",
+    margin: "15px 0",
   },
 
   resultText: {
-    fontSize: "1.3em",
+    fontSize: "1.1em",
     fontWeight: "bold",
-    background: "rgba(255, 255, 255, 0.2)",
-    padding: "20px",
-    borderRadius: "15px",
-    backdropFilter: "blur(10px)",
-    marginBottom: "15px",
-    lineHeight: "1.4",
+    marginBottom: "10px",
+    color: "#98FB98",
+    textShadow: "1px 1px 0px #006400",
   },
 
   playerList: {
-    maxHeight: "400px",
+    maxHeight: "300px",
     overflowY: "auto",
-    marginTop: "20px",
+    margin: "5px 0",
   },
 
-  playerItem: {
-    background: "rgba(144, 238, 144, 0.8)",
-    color: "#333",
-    margin: "10px 0",
-    padding: "15px 20px",
-    borderRadius: "15px",
+  pixelPlayerItem: {
+    background: "linear-gradient(180deg, #98FB98 0%, #90EE90 100%)",
+    color: "#2F1B14",
+    margin: "5px 0",
+    padding: "10px 15px",
+    border: "2px solid #FFD700",
+    borderRadius: "0px",
     cursor: "pointer",
-    fontSize: "16px",
-    fontWeight: "500",
-    boxShadow: "0 2px 8px rgba(0, 0, 0, 0.1)",
-    border: "2px solid transparent",
+    fontSize: "14px",
+    fontWeight: "bold",
+    boxShadow: "3px 3px 0px rgba(0, 0, 0, 0.3)",
     userSelect: "none",
     display: "flex",
     justifyContent: "space-between",
     alignItems: "center",
-    transition: "all 0.3s ease",
+    transition: "all 0.1s ease",
   },
 
-  markedItem: {
-    background: "rgba(255, 182, 193, 0.8)",
+  markedPixelItem: {
+    background: "linear-gradient(180deg, #FFB6C1 0%, #FFA0B4 100%)",
     textDecoration: "line-through",
-    borderColor: "rgba(255, 99, 132, 0.5)",
-    color: "#666",
+    color: "#8B4513",
+    opacity: "0.7",
   },
 
   playerName: {
@@ -680,24 +823,6 @@ const styles = {
   },
 
   finalStats: {
-    background: "rgba(255, 255, 255, 0.1)",
-    borderRadius: "15px",
-    padding: "15px",
-    margin: "20px 0",
-    fontSize: "14px",
-  },
-  autoSpinButton: {
-    background: "linear-gradient(45deg, #a29bfe, #6c5ce7)",
-    color: "white",
-    border: "none",
-    padding: "16px 28px",
-    borderRadius: "50px",
-    cursor: "pointer",
-    fontSize: "16px",
-    fontWeight: "600",
-    boxShadow: "0 4px 15px rgba(0, 0, 0, 0.2)",
-    minWidth: "120px",
-    transition: "all 0.3s ease",
-    margin: "0 10px",
+    margin: "15px 0",
   },
 };
